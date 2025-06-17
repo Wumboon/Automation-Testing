@@ -12,6 +12,9 @@ def findClassElement(driver,classname):
     except:
         print("an exception occured finding " + classname)
 
+def is_text_present(self, text):
+    return str(text) in self.driver.page_source
+
 def create_account(driver):
     random_email="qatesting" + str(randrange(100000))+ "@gmail.com"
     driver.find_element(By.CSS_SELECTOR, 'input[data-qa="signup-name"]').send_keys("John")
@@ -45,18 +48,11 @@ def create_account(driver):
     driver.find_element(By.CSS_SELECTOR, 'input[data-qa="zipcode"]').send_keys("17283")
     driver.find_element(By.CSS_SELECTOR, 'input[data-qa="mobile_number"]').send_keys("16256750982")
     driver.find_element(By.CSS_SELECTOR, 'button[data-qa="create-account"]').click()
-    # return random_email
-# def verifyCSSExist(tag, type, name):
-#     print("'"+tag+'['+type+'='+'"'+name+'"'+']'+"'")
-#     try:
-#         driver.find_element(By.CSS_SELECTOR, "'"+tag+'['+type+'='+'"'+name+'"'+']'+"'")
-#         print("found "+ name)
-#     except:
-#         print(" not found "+name)
 
 
 
 def testCase1():
+    # Register User end to end 
     driver=webdriver.Chrome()
     driver.get("https://www.automationexercise.com/")
     driver.implicitly_wait(5)
@@ -67,7 +63,6 @@ def testCase1():
     findClassElement(driver,"signup-form")
     
     create_account(driver)
-    #verifyCSSExist('h2','data-qa',"account-created")
     
     try:
         driver.find_element(By.CSS_SELECTOR, 'h2[data-qa="account-created"]')
@@ -90,10 +85,13 @@ def testCase1():
         print("found account deleted visible")
     except:
         print("an exception occured finding account deleted" )
+    
+    #driver.close()
         
         
         
 def testCase2():
+# Login user with correct email and password
     driver=webdriver.Chrome()
     driver.get("https://www.automationexercise.com/")
     driver.implicitly_wait(5)
@@ -111,15 +109,93 @@ def testCase2():
         print("found logged in as user is visible")
     except:
         print("an exception occured finding logged in as user" )
+        
+    #driver.close()
 
 def testCase3():
+# Login user with incorrect email and password
+    driver=webdriver.Chrome()
+    driver.get("https://www.automationexercise.com/")
+    driver.implicitly_wait(10)
+
+    loginbutton=driver.find_element(By.CSS_SELECTOR, 'a[href="/login"]')
+    loginbutton.click()
+    
+    findClassElement(driver,"login-form")
+    driver.find_element(By.CSS_SELECTOR, 'input[data-qa="login-email"]').send_keys("BadEmailTest@gmail.com")
+    driver.find_element(By.CSS_SELECTOR, 'input[data-qa="login-password"]').send_keys("badPassword")
+    driver.find_element(By.CSS_SELECTOR, 'button[data-qa="login-button"]').click()
+    
+    bd = driver.find_element(By.CSS_SELECTOR, 'form[action="/login"]').text
+    
+    if "Your email or password is incorrect" in bd:
+        print("email and password incorrect found")
+    else:
+        print("error message did not appear for email/password incorrect")
+        
+    #driver.close()
+
+def testCase4():
+# Logout User
+    driver=webdriver.Chrome()
+    driver.get("https://www.automationexercise.com/")
+    driver.implicitly_wait(5)
+
+    if(driver.current_url=="https://www.automationexercise.com/"):
+        print("Is currently on home page")
+    else:
+        print("not on home page current page is "+driver.current_url)
+    
+    loginbutton=driver.find_element(By.CSS_SELECTOR, 'a[href="/login"]')
+    loginbutton.click()
+    
+    findClassElement(driver,"login-form")
+    driver.find_element(By.CSS_SELECTOR, 'input[data-qa="login-email"]').send_keys("LoggedInTest18457@gmail.com")
+    driver.find_element(By.CSS_SELECTOR, 'input[data-qa="login-password"]').send_keys("TestingPassword91872")
+    driver.find_element(By.CSS_SELECTOR, 'button[data-qa="login-button"]').click()
+    
+    try:
+        driver.find_element(By.CSS_SELECTOR, 'i[class="fa fa-user"]')
+        print("found logged in as user is visible")
+    except:
+        print("an exception occured finding logged in as user" )
+    
+    driver.find_element(By.CSS_SELECTOR, 'a[href="/logout"]').click()
+    if(driver.current_url=="https://www.automationexercise.com/login"):
+        print("Successfully went back to Login page")
+    else:
+        print("not on login page current page is "+driver.current_url)
+        
+    #driver.close()
+
+def testCase5():
+# Register User with existing Email
     driver=webdriver.Chrome()
     driver.get("https://www.automationexercise.com/")
     driver.implicitly_wait(5)
 
     loginbutton=driver.find_element(By.CSS_SELECTOR, 'a[href="/login"]')
     loginbutton.click()
+    
+    findClassElement(driver,"signup-form")
+    
+    
+    driver.find_element(By.CSS_SELECTOR, 'input[data-qa="signup-name"]').send_keys("John")
+    driver.find_element(By.CSS_SELECTOR, 'input[data-qa="signup-email"]').send_keys("LoggedInTest18457@gmail.com")
+    driver.find_element(By.CSS_SELECTOR, 'button[data-qa="signup-button"]').click()
+    
+    bd = driver.find_element(By.CSS_SELECTOR, 'form[action="/signup"]').text
+    
+    if "Email Address already exist!" in bd:
+        print("email address already exists found")
+    else:
+        print("error message did not appear for existing email address")
+        
+    #driver.close()
+        
 
 testCase1()
 testCase2()
 testCase3()
+testCase4()
+testCase5()
